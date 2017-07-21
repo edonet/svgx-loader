@@ -1,0 +1,61 @@
+@charset "utf-8";
+
+
+/**
+ *************************************
+ * 扩展函数
+ *************************************
+ */
+
+/* 连接字符串 */
+@function str-join($map, $sep: '&', $eq: '=') {
+    $result: null;
+
+    @each $key, $val in $map {
+        $param: if($val, $key + $eq + $val, $key);
+        $result: if($result, $result + $sep + $param, $param);
+    }
+
+    @return $result;
+}
+
+/* 替换字符串 */
+@function str-replace($string, $search, $replace: '') {
+    $index: str-index($string, $search);
+
+    // 替换找到的字符串
+    @if $index {
+        $prevString: str-slice($string, 1, $index - 1);
+        $nextString: str-slice($string, $index + str-length($search));
+        @return $prevString + $replace + str-replace($nextString, $search, $replace);
+    }
+
+    // 返回原字符串
+    @return $string;
+}
+
+/* 生成查询字符串 */
+@function str-query($args) {
+
+    // 连接参数
+    $params: str-join($args);
+
+    // 替换特殊字符
+    $params: str-replace($params, '%', '%25');
+    $params: str-replace($params, '#', '%23');
+
+    // 返回参数
+    @return $params;
+}
+
+
+
+/**
+ *************************************
+ * 定义模块加载器
+ *************************************
+ */
+@function svgx($path, $args: null) {
+    @return url('~svgx-loader!' + $path + '?output=sass&' + if($args, str-query($args), ''));
+}
+
