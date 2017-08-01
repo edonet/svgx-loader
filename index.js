@@ -13,9 +13,9 @@
  ************************************
  */
 const
-    qs = require('querystring'),
     SVGO = require('svgo'),
     utils = require('loader-utils'),
+    regexp = /\$\{([\w\s-]+)(?::([^}]*))?\}/g,
     cache = {};
 
 
@@ -26,9 +26,19 @@ const
  */
 module.exports = function (source) {
 
-    // 查看是否已经缓存
-    if (this.resource in cache) {
-        return cache[this.resource];
+    // 判断是否已经加载过
+    if (source.startsWith('module.exports=')) {
+        return source;
+    }
+
+    // 获取【hash】码
+    let hash = utils.getHashDigest(source),
+        resource = this.resource;
+
+
+    // 返回自字义缓存
+    if (resource in cache && hash === cache[resource].hash) {
+        return cache[resource].data;
     }
 
     // 启用缓存
@@ -46,10 +56,13 @@ module.exports = function (source) {
     // 替换变量
     if (query) {
         query = utils.parseQuery(query);
-        code = code.replace(/\$\{([\w\s-]+)\}/g, (str, key) => {
-            return key in query ? query[key] : '';
+        code = code.replace(regexp, (str, key, val) => {
+            key = key.trim();
+            val = val ? val.trim() : '';
+            return key in query ? query[key] : val;
         });
     }
+
 
     // 优化【SVG】代码
     svgo.optimize(code, ({ data }) => {
@@ -85,8 +98,8 @@ module.exports = function (source) {
             data = `module.exports=${ JSON.stringify(data) }`;
         }
 
-        // 缓存数据
-        cache[this.resource] = data;
+        // 缓存结果
+        cache[resource] = { hash, data };
 
         // 返回结果
         callback(null, data);
