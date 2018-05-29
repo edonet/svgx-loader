@@ -1,13 +1,13 @@
 {
-  "name": "svgx-loader",
-  "version": "0.0.3",
-  "description": "svgx loader for webpack",
-  "main": "index.js",
-  "repository": "git@github.com:edonet/svgx-loader.git",
-  "author": "edoner <edonet@163.com>",
-  "license": "MIT",
-  "dependencies": {
-    "loader-utils": "^1.1.0",
-    "svgo": "^0.7.2"
-  }
+    "name": "svgx-loader",
+    "version": "0.0.4",
+    "description": "svgx loader for webpack",
+    "main": "lib/index.js",
+    "repository": "git@github.com:edonet/svgx-loader.git",
+    "author": "edoner <edonet@163.com>",
+    "license": "MIT",
+    "dependencies": {
+        "loader-utils": "^1.1.0",
+        "svgo": "^1.0.5"
+    }
 }
